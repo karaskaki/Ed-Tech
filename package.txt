@@ -1,0 +1,9 @@
+express
+nodemon
+dotenv
+mongoose
+cookie-parser
+Json Web Token
+nodemailer
+otp-generator
+bcrypt
