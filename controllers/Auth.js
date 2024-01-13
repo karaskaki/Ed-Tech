@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const OTP = require("../models/OTPVerify");
 
+console.log("hello");
 
 // Send OTP
 exports.sendOTP = async (req, res) => {
