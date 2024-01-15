@@ -7,3 +7,4 @@ Json Web Token
 nodemailer
 otp-generator
 bcrypt
+cloudinary

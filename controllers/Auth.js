@@ -56,7 +56,6 @@ exports.sendOTP = async (req, res) => {
                message: "OTP send successfully",
                otp,
           })
-
      }
      catch(error) {
           console.log(error);
@@ -65,7 +64,6 @@ exports.sendOTP = async (req, res) => {
                message: error.message,
           })
      }
-
 }
 
 // SignUp
@@ -93,7 +91,7 @@ exports.signup = async (req,res) => {
           }
 
           // 2 password match karlo
-          if(password != confirmPassword){
+          if(password !== confirmPassword){
                res.status(400).json({
                     success: false,
                     message: "Password And Confirm Password does not match, please try again",
@@ -158,7 +156,6 @@ exports.signup = async (req,res) => {
                message: "User is registered Successfully",
                user,
           })
-
      }
      catch(error){  
           console.log(error);
@@ -184,7 +181,7 @@ exports.login = async (req, res) => {
                });
           }
 
-          // user check karo ki exist karta hai ki nahi
+          // check karo ki user exist karta hai ki nahi
           const user = await User.findOne({email}).populate("additionalDelails");
           if(!user) {
                return res.status(401).json({
@@ -238,11 +235,82 @@ exports.login = async (req, res) => {
 // Change Password
 exports.changePassword = async (req, res) => {
      
-     // get data from req.body
-     // get oldPaaword, newPassword, ConfirmNewPassword
-     // validation
+     try {
+          // get data from req.body
+          const user = await User.findOne(req.user.email);
 
-     // update password in DB
-     // send mail - Password updated
-     // return response
+          // get oldPaaword, newPassword, ConfirmNewPassword
+          const { oldPassword, newPassword, confirmNewPassword } = req.body;
+
+          // Check if the provided old password matches the current password
+          const isPasswordMatch = await bcrypt.compare(oldPassword, user.password);
+          if (!isPasswordMatch) {
+               return res.status(401).json({
+                    success: false,
+                    message: "Old password is incorrect",
+               });
+          }
+
+          // Validation
+          if (!oldPassword || !newPassword || !confirmNewPassword) {
+               return res.status(403).json({
+                    success: false,
+                    message: "All fields are required",
+               });
+          }
+
+          // Check if the new password and confirmNewPassword match
+          if (newPassword !== confirmNewPassword) {
+               return res.status(400).json({
+                    success: false,
+                    message: "New password and Confirm new password do not match",
+               });
+          }
+
+          // Check that oldPassowrd and newPassword should not match
+          if(oldPassword === newPassword) {
+               return res.status(401).json({
+                    success: false,
+                    message: "NewPassword should not match with OldPassword",
+               });
+          }
+
+          // Update password
+          const encryptedPassword = await bcrypt.hash(newPassword, 10)
+          const updatedUserDetails = await User.findByIdAndUpdate(
+          req.user.id,
+          { password: encryptedPassword },
+          { new: true })
+
+          // send mail - Password updated
+          try {
+               const emailResponse = await mailSender(
+                    updatedUserDetails.email,
+                    "Password for your account has been updated",
+                    `Password updated successfully for userID: ${updatedUserDetails.email}`     
+               )
+               console.log("Email sent successfully:", emailResponse.response);
+          }
+          catch(error) {
+               console.error("Error occurred while sending email:", error);
+               return res.status(500).json({
+                    success: false,
+                    message: "Error occured while sending the email",
+                    error: error.message,
+               })
+          }
+
+          // Return successful response
+          return res.status(200).json({
+               success: true,
+               message: "Password changed successfully",
+          });
+     }
+     catch (error) {
+          console.log("Error occurred while Changing password", error);
+          return res.status(500).json({
+               success: false,
+               message: "Error occurred while Changing password",
+          })
+        }
 }
