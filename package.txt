@@ -8,3 +8,4 @@ nodemailer
 otp-generator
 bcrypt
 cloudinary
+razorpay

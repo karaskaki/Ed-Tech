@@ -14,4 +14,4 @@ const sectionProgressSchema = new mongoose.Schema({
      ],
 })
 
-module.exports = mongoose.model("SectionProgress", sectionProgressSchema);
+module.exports = mongoose.model("Section", sectionProgressSchema);
