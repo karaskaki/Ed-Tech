@@ -1,57 +1,98 @@
 const Category = require("../models/Category");
 
-exports.createCategory = async (req,res) => {
+exports.createCategory = async (req, res) => {
+	try {
+        // Fetch Data
+		const { name, description } = req.body;
 
-     try {
-          // Fetch Data
-          const {name, description} = req.body;
+        // Validation
+		if (!name) {
+			return res
+				.status(400)
+				.json({ success: false, message: "All fields are required" });
+		}
 
-          // Validation
-          if(!name || !description) {
-               return res.status(400).json({
-                    success: false,
-                    message: "All fields are required",
-               });
-          }
+        // create entry in DB
+		const CategorysDetails = await Category.create({
+			name: name,
+			description: description,
+		});
+		console.log(CategorysDetails);
 
-          // create entry in DB
-          const tagDetails = await  Category.create({
-               name: name,
-               description: description,
-          });
-          console.log(tagDetails);
-
-          // return response
-          return res.status(200).json({
-               success: true,
-               message: "Tags created successfully",
-          })
-     }
-     catch(error) {
-          return res.status(500).json({
-               success: false,
-               message: error.message,
-          })
-     }
+        // return response
+		return res.status(200).json({
+			success: true,
+			message: "Categorys Created Successfully",
+		});
+	} catch (error) {
+		return res.status(500).json({
+			success: true,
+			message: error.message,
+		});
+	}
 };
 
-// get All Tags
-exports.showAllCategory = async (req,res) => {
+exports.showAllCategories = async (req, res) => {
+	try {
+        // Find the name and description
+		const allCategorys = await Category.find(
+			{},
+			{ name: true, description: true }
+		);
+		res.status(200).json({
+			success: true,
+			data: allCategorys,
+		});
+	} catch (error) {
+		return res.status(500).json({
+			success: false,
+			message: error.message,
+		});
+	}
+};
 
-     try {
-          // Find the name and description
-          const allTags = await Category.find({}, {name: true, description: true});
-          res.status(200).json({
-               success: true,
-               message: "All Tags returned successfully",
-               allTags,
-          })
+//categoryPageDetails 
 
-     }
-     catch(error) {
-          return res.status(500).json({
-               success: false,
-               message: error.message,
-          })
-     }
+exports.categoryPageDetails = async (req, res) => {
+    try {
+            //get categoryId
+            const {categoryId} = req.body;
+            //get courses for specified categoryId
+            const selectedCategory = await Category.findById(categoryId)
+                                            .populate("courses")
+                                            .exec();
+            //validation
+            if(!selectedCategory) {
+                return res.status(404).json({
+                    success:false,
+                    message:'Data Not Found',
+                });
+            }
+            //get courses for different categories
+            const differentCategories = await Category.find({
+                                         _id: {$ne: categoryId},
+                                         })
+                                         .populate("courses")
+                                         .exec();
+
+            //get top 10 selling courses
+            //HW - write it on your own
+
+            //return response
+            return res.status(200).json({
+                success:true,
+                data: {
+                    selectedCategory,
+                    differentCategories,
+                },
+            });
+
+    }
+    catch(error ) {
+        console.log(error);
+        return res.status(500).json({
+            success:false,
+            message:error.message,
+        });
+    }
 }
