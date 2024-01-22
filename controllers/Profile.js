@@ -6,12 +6,12 @@ const { uploadImageToCloudinary } = require("../utils/imageUploader");
 exports.updateProfile = async (req, res) => {
 	try {
 		// get data
-		const { dateOfBirth = "", about = "", contactNumber } = req.body;
+		const { dateOfBirth = "", about = "", contactNumber, gender } = req.body;
 		// get UserId
 		const id = req.user.id;
 
 		// validation
-          if(!contactNumber || !gender || !id) {
+          if(!contactNumber || !dateOfBirth || !id || !gender) {
                return res.status(400).json({
                     success: false,
                     message: "Please fill all the fields",
@@ -26,6 +26,7 @@ exports.updateProfile = async (req, res) => {
 		profile.dateOfBirth = dateOfBirth;
 		profile.about = about;
 		profile.contactNumber = contactNumber;
+		profile.gender = gender;
 
 		// Save the updated profile
 		await profile.save();
@@ -67,11 +68,11 @@ exports.deleteAccount = async (req, res) => {
 		}
 
 		// Delete Assosiated Profile with the User
-		await Profile.findByIdAndDelete({ _id: user.userDetails });
+		await Profile.findByIdAndDelete({ _id: user.additionalDetails });
 		
 		// TODO: Unenroll User From All the Enrolled Courses
 		// Now Delete User
-		await user.findByIdAndDelete({ _id: id });
+		await User.findByIdAndDelete({ _id: id });
 		res.status(200).json({
 			success: true,
 			message: "User deleted successfully",

@@ -1,11 +1,2 @@
-express
-nodemon
-dotenv
-mongoose
-cookie-parser
-Json Web Token
-nodemailer
-otp-generator
-bcrypt
-cloudinary
-razorpay
+express nodemon dotenv mongoose cookie-parser jsonwebtoken nodemailer otp-generator bcrypt cloudinary razorpay cors express-fileupload bcryptjs crypto-random-string node-schedule
+// HW: IMP: Add State Management for payment like captureed, Authorized, Dispatch and so on...

@@ -89,10 +89,11 @@ exports.updateSection = async (req, res) => {
 exports.deleteSection = async (req, res) => {
 	try {
 		// get Id - assumeing that we are sending ID in Params
-		const { sectionId } = req.params;
+		const { sectionId } = req.body;
 
 		// use findByIdAndDelete
 		await Section.findByIdAndDelete(sectionId);
+		// HW -> Course ko v update karo
 		res.status(200).json({
 			success: true,
 			message: "Section deleted",

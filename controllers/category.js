@@ -1,6 +1,7 @@
-const Category = require("../models/Category");
+const Category = require("../models/category")
 
 exports.createCategory = async (req, res) => {
+
 	try {
         // Fetch Data
 		const { name, description } = req.body;
@@ -52,11 +53,11 @@ exports.showAllCategories = async (req, res) => {
 };
 
 //categoryPageDetails 
-
 exports.categoryPageDetails = async (req, res) => {
     try {
             //get categoryId
             const {categoryId} = req.body;
+
             //get courses for specified categoryId
             const selectedCategory = await Category.findById(categoryId)
                                             .populate("courses")
@@ -68,15 +69,20 @@ exports.categoryPageDetails = async (req, res) => {
                     message:'Data Not Found',
                 });
             }
+
             //get courses for different categories
             const differentCategories = await Category.find({
-                                         _id: {$ne: categoryId},
+                                         _id: {$ne: categoryId}, // ne -> notEqual
                                          })
                                          .populate("courses")
                                          .exec();
 
             //get top 10 selling courses
             //HW - write it on your own
+            const allCourses = await Course.find({})
+                                     .sort({ salesCount: -1 })
+                                     .limit(10)
+                                     .exec();
 
             //return response
             return res.status(200).json({
@@ -87,8 +93,7 @@ exports.categoryPageDetails = async (req, res) => {
                 },
             });
 
-    }
-    catch(error ) {
+    } catch(error ) {
         console.log(error);
         return res.status(500).json({
             success:false,
